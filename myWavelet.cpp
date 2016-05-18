@@ -1,19 +1,20 @@
 /*************************************************************************
 	> File Name: myWavelet.cpp
-	> Author: 
-	> Mail: 
+	> Author: zyx 
+	> Mail: zhang-yx10@foxmail.com
 	> Created Time: Tuesday, May 17, 2016 PM03:21:38 HKT
  ************************************************************************/
 #include<myWavelet.h>
 #include<iostream>
 #include<algorithm>
 using namespace std;
-
+//mydwt: single-level discrete 1-D wavelet transform
+// s : the input signal vector ;
+// cA: the output approximation coefficients vector 
+// cD: the output detail coefficients vector 
 bool mydwt(vector<double> &s,vector<double> &cA,vector<double> &cD){
-    //cout<<"here is mydwt function"<<endl;
     int l = s.size();
     vector<double> y(s);
-    //copy(s.begin(),s.end(),y.begin());
     cA.clear();
     cD.clear();
     int i=1;
@@ -21,11 +22,8 @@ bool mydwt(vector<double> &s,vector<double> &cA,vector<double> &cD){
         y.insert(y.begin(),s[i]);
         y.push_back(s[l-1-i]);
     }
-    //cout<<"y="<<y.size()<<endl;
 
     int up=(l+5)/2;
-    //cout<<"up="<<up<<endl;
-
     double temp;
     double Lo[6]=Lo_R;
     double Hi[6]=Hi_R;
@@ -47,6 +45,11 @@ bool mydwt(vector<double> &s,vector<double> &cA,vector<double> &cD){
     return true;
 }
 
+//mywaveDec : multilevel 1-D wavelet decomposition
+//s : the input signal vector
+//N : the levels 
+//C : the output coefficients [An Dn Dn-1...D2 D1]
+//L : the lengths [lAn lDn lDn-1 ... ls]
 bool mywaveDec(vector<double> &s,int N,vector<double> &C,vector<int> &L){
     if(N<1) return false;
     C.clear();
@@ -62,7 +65,6 @@ bool mywaveDec(vector<double> &s,int N,vector<double> &C,vector<int> &L){
     int k;
     if(N>1){
         for(k=2;k<=N;k++){
-   //         cout<<"k = "<<k<<endl;
             mydwt(cA,cAx,cDx);
             C.insert(C.begin(),cDx.begin(),cDx.end());
             L.insert(L.begin(),cDx.size());
@@ -77,6 +79,11 @@ bool mywaveDec(vector<double> &s,int N,vector<double> &C,vector<int> &L){
     return true;
 }
 
+//myupsconv : Upsample and convolution 1D 
+//x : the input signal coefficients 
+//f : the db3 signal coefficients
+//l : the length upsampling target
+//y : the output signal 
 
 bool myupsconv(vector<double> &x,double *f,int l,vector<double> &y){
     y.clear();
@@ -111,6 +118,12 @@ bool myupsconv(vector<double> &x,double *f,int l,vector<double> &y){
     return true;
 }
 
+//mywrcoef: Reconstruct single branch from 1-D wavelet coefficients
+//o : 'a' or 'd'  approximation or detail 
+//C : the whole coefficents which is the output of mywaveDec() 
+//L : the lengths which is the output of mywaveDec()
+//N : the level that will be reconstruct
+//X : the output signal
 bool mywrcoef(char o,vector<double> &C,vector<int> &L,int N,vector<double> &X){
     X.clear();
     double Lo[6]=Lo_D;
@@ -146,8 +159,4 @@ bool mywrcoef(char o,vector<double> &C,vector<int> &L,int N,vector<double> &X){
         X.insert(X.begin(),tempX.begin(),tempX.end());
     }
 }
-
-
-
-
 
